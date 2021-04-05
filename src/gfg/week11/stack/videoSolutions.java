@@ -6,17 +6,18 @@ public class videoSolutions {
 
 	public static void main(String[] args) {
 		int[] arr = { 1, 3, 2, 4 };
+		String s = "{[()]}";
 		// System.out.println(getMaxAreaX(arr, 7));
-		System.out.println(nextGreater(arr, 4));
+		System.out.println(isBalanced(s));
 	}
 
 	public static boolean isBalanced(String str) {
 		ArrayDeque<Character> stack = new ArrayDeque<Character>();
 		for (int i = 0; i < str.length(); i++) {
 			if (str.charAt(i) == '(' || str.charAt(i) == '[' || str.charAt(i) == '{') {
-				stack.add(str.charAt(i));
+				stack.push(str.charAt(i));
 			} else {
-				if (stack.isEmpty() == true)
+				if (stack.isEmpty())
 					return false;
 				else if (!matchBrac(stack.peek(), str.charAt(i)))
 					return false;
@@ -28,6 +29,7 @@ public class videoSolutions {
 	}
 
 	public static boolean matchBrac(char a, char b) {
+		System.out.println("a : " + a + "  b : " + b);
 		return ((a == '(' && b == ')') || (a == '[' && b == ']') || (a == '{' && b == '}'));
 	}
 

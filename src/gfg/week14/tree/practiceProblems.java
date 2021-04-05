@@ -3,19 +3,21 @@ package gfg.week14.tree;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Stack;
+import java.util.TreeMap;
 
 public class practiceProblems {
 
 	public static void main(String[] args) {
-		int i = 010;
-		int j = 07;
-		System.out.println(i);
-		System.out.println(j);
+		Node root = new Node(1);
+		root.left = new Node(2);
+		root.right = new Node(3);
+		System.out.println(verticalWidth(root));
 	}
 
 	static ArrayList<Integer> preorder(Node root) {
@@ -328,21 +330,22 @@ public class practiceProblems {
 		return 1 + Math.max(lh, rh);
 	}
 
+	static HashSet<Integer> map = null;
+
 	public static int verticalWidth(Node root) {
+		map = new HashSet<Integer>();
+		findVerticalUtil(root, 0);
+		return map.size();
+	}
+
+	static void findVerticalUtil(Node root, int dis) {
 		if (root == null)
-			return 0;
-		int res = 1;
-		Node curr = root;
-		while (curr.left != null) {
-			curr = curr.left;
-			res++;
+			return;
+		findVerticalUtil(root.left, dis - 1);
+		if (!map.contains(dis)) {
+			map.add(dis);
 		}
-		curr = root;
-		while (curr.right != null) {
-			curr = curr.right;
-			res++;
-		}
-		return res;
+		findVerticalUtil(root.right, dis + 1);
 	}
 
 	void mirror(Node node) {
