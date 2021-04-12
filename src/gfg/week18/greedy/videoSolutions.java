@@ -71,11 +71,6 @@ class Activity implements Comparable<Activity> {
 		return this.finish - act.finish;
 	}
 
-	public void printActivity(Activity[] arr) {
-		for (int i = 0; i < arr.length; i++) {
-			System.out.println(arr[i].start + " " + arr[i].finish + "  ***  ");
-		}
-	}
 }
 
 class Item implements Comparable<Item> {
