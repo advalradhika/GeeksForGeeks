@@ -5,8 +5,8 @@ import java.util.*;
 public class practiceProblems {
 
 	public static void main(String[] args) {
-		char[][] grid = { { 0, 1 }, { 1, 0 }, { 1, 1 }, { 1, 0 } };
-		int res = numIslands(grid);
+		// char[][] grid = { { 0, 1 }, { 1, 0 }, { 1, 1 }, { 1, 0 } };
+		// int res = numIslands(grid);
 		// System.out.println(res);
 
 		ArrayList<ArrayList<Integer>> arr = new ArrayList<ArrayList<Integer>>();
@@ -19,7 +19,11 @@ public class practiceProblems {
 		arr.get(1).add(3);
 		arr.get(2).add(1);
 		arr.get(3).add(1);
-		System.out.println(isCycle(4, arr));
+		// System.out.println(isCycle(4, arr));
+
+		int[][] grid = { { 1, 3 }, { 3, 2 } };
+		boolean res = is_Possible(grid);
+		System.out.println(res);
 
 	}
 
@@ -163,4 +167,54 @@ public class practiceProblems {
 		return false;
 	}
 
+	static int[] ddx = { 0, 0, 1, -1 };
+	static int[] ddy = { -1, 1, 0, 0 };
+
+	public static boolean is_Possible(int[][] grid) {
+		Pair src = new Pair(-1, -1), dest = new Pair(-1, -1);
+		int n = grid.length;
+		for (int i = 0; i < n; i++) {
+			for (int j = 0; j < n; j++) {
+				if (grid[i][j] == 1)
+					src = new Pair(i, j);
+				else if (grid[i][j] == 2)
+					dest = new Pair(i, j);
+			}
+		}
+		return checkPath(src, dest, n, grid);
+	}
+
+	public static boolean checkPath(Pair src, Pair des, int n, int[][] grid) {
+		if (src.row == des.row && src.col == des.col)
+			return true;
+		else {
+			for (int i = 0; i < 4; i++) {
+				Pair check = new Pair(src.row + ddx[i], src.col + ddy[i]);
+				grid[src.row][src.col] = 0;
+				if (isReachable(check, grid) && (checkPath(check, des, n, grid)))
+					return true;
+				grid[src.row][src.col] = 3;
+			}
+			return false;
+		}
+	}
+
+	public static boolean isReachable(Pair curr, int[][] grid) {
+		int n = grid.length;
+		if (curr.col > -1 && curr.row > -1 && curr.col < n && curr.row < n && grid[curr.row][curr.col] != 0)
+			return true;
+		else
+			return false;
+	}
+
+}
+
+class Pair {
+	int row;
+	int col;
+
+	Pair(int r, int c) {
+		this.row = r;
+		this.col = c;
+	}
 }

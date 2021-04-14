@@ -6,36 +6,43 @@ public class videoSolutions {
 
 	public static void main(String[] args) {
 		ArrayList<ArrayList<AdjListNode>> ad = new ArrayList<ArrayList<AdjListNode>>();
-		for (int i = 0; i < 6; i++) {
+		for (int i = 0; i < 4; i++) {
 			ad.add(new ArrayList<AdjListNode>());
 		}
-		ad.get(0).add(new AdjListNode(1, 5));
-		ad.get(0).add(new AdjListNode(2, 10));
-		ad.get(1).add(new AdjListNode(0, 5));
-		ad.get(1).add(new AdjListNode(2, 3));
-		ad.get(1).add(new AdjListNode(3, 20));
+		ad.get(0).add(new AdjListNode(1, 1));
+		ad.get(0).add(new AdjListNode(3, 4));
+		ad.get(1).add(new AdjListNode(2, 2));
+		ad.get(1).add(new AdjListNode(3, -6));
+		// ad.get(1).add(new AdjListNode(3, 20));
 		// ad.get(1).add(new AdjListNode(2, 3));
-		ad.get(2).add(new AdjListNode(0, 10));
-		ad.get(2).add(new AdjListNode(1, 3));
-		ad.get(2).add(new AdjListNode(3, 2));
-		ad.get(3).add(new AdjListNode(1, 20));
-		ad.get(3).add(new AdjListNode(2, 2));
+//		ad.get(2).add(new AdjListNode(0, 10));
+//		ad.get(2).add(new AdjListNode(1, 3));
+//		ad.get(2).add(new AdjListNode(3, 2));
+//		ad.get(3).add(new AdjListNode(1, 20));
+		ad.get(3).add(new AdjListNode(2, 3));
+		// bellmanFordAlgorithm(ad, 0);
 		// ad.get(4).add(new AdjListNode(3, 9));
 		// ad.get(4).add(new AdjListNode(1, 5));
 		// ad.get(4).add(new AdjListNode(2, 7));
 		// dijkstraMinDistance(ad, 0);
 		ArrayList<ArrayList<Integer>> adList = new ArrayList<ArrayList<Integer>>();
-		for (int i = 0; i < 6; i++) {
+		for (int i = 0; i < 4; i++) {
 			adList.add(new ArrayList<Integer>());
 		}
 		adList.get(0).add(1);
-		adList.get(1).add(2);
-		adList.get(2).add(3);
-		adList.get(3).add(4);
+		adList.get(0).add(2);
+		adList.get(0).add(3);
+		adList.get(1).add(0);
+		adList.get(2).add(0);
 		adList.get(3).add(0);
-		adList.get(4).add(5);
-		adList.get(5).add(4);
-		kosarajuFindStronglyConnectedComponents(adList);
+
+		findArticulationPoints(adList);
+//		adList.get(3).add(0);
+//		adList.get(4).add(5);
+//		adList.get(5).add(4);
+//		int[] x = new int[1];
+		// System.out.println(x[0]);
+		// kosarajuFindStronglyConnectedComponents(adList);
 	}
 
 	static void addEdge(ArrayList<ArrayList<Integer>> adj, int u, int v) {
@@ -424,6 +431,122 @@ public class videoSolutions {
 		}
 	}
 
+	static void bellmanFordAlgorithm(ArrayList<ArrayList<AdjListNode>> adj, int s) {
+		int v = adj.size();
+		int[] dis = new int[v];
+		Arrays.fill(dis, Integer.MAX_VALUE);
+		dis[s] = 0;
+		ArrayList<Edge> edges = getAllEdges(adj);
+		for (int i = 0; i < v - 1; i++) {
+			for (Edge edge : edges) {
+				if (dis[edge.start] != Integer.MAX_VALUE)
+					dis[edge.end] = Math.min(dis[edge.end], dis[edge.start] + edge.weight);
+			}
+		}
+		for (Edge edge : edges) {
+			if (dis[edge.start] != Integer.MAX_VALUE && dis[edge.end] < dis[edge.start] + edge.weight) {
+				System.out.println("Negative weight cycle exists");
+				return;
+			}
+		}
+		for (int i = 0; i < v; i++) {
+			System.out.println("Vertex : " + i + " distance : " + dis[i]);
+		}
+	}
+
+	static ArrayList<Edge> getAllEdges(ArrayList<ArrayList<AdjListNode>> adj) {
+		ArrayList<Edge> edges = new ArrayList<Edge>();
+		for (int i = 0; i < adj.size(); i++) {
+			for (AdjListNode node : adj.get(i)) {
+				edges.add(new Edge(i, node.getV(), node.getWeight()));
+			}
+		}
+		return edges;
+	}
+
+	static void findBridges(ArrayList<ArrayList<Integer>> adj) {
+		int timer = 0;
+		int v = adj.size();
+		int[] inTime = new int[v];
+		int[] lowTime = new int[v];
+		boolean[] visited = new boolean[v];
+		DFSBridgeUtil(adj, inTime, lowTime, timer, 0, visited, -1);
+	}
+
+	static void DFSBridgeUtil(ArrayList<ArrayList<Integer>> adj, int[] inTime, int[] lowTime, int timer, int s,
+			boolean[] visited, int parent) {
+		visited[s] = true;
+		inTime[s] = lowTime[s] = timer;
+		timer++;
+		for (Integer ad : adj.get(s)) {
+			if (ad == parent) {
+				continue;
+			} else if (visited[ad]) {
+				////// BackEdge Case
+				lowTime[s] = Math.min(lowTime[s], inTime[ad]);
+			} else {
+				DFSBridgeUtil(adj, inTime, lowTime, timer, ad, visited, s);
+				if (lowTime[ad] > inTime[s]) {
+					System.out.println(s + "-" + ad + " is a bridge");
+				}
+				lowTime[s] = Math.min(lowTime[s], lowTime[ad]);
+			}
+		}
+	}
+
+	static void findArticulationPoints(ArrayList<ArrayList<Integer>> adj) {
+		HashSet<Integer> res = new HashSet<Integer>();
+		int timer = 0, v = adj.size();
+		int[] inTime = new int[v];
+		int[] lowTime = new int[v];
+		boolean[] visited = new boolean[v];
+		for (int i = 0; i < v; i++) {
+			if (!visited[i])
+				DFSArticulationPointsUtil(adj, inTime, lowTime, timer, i, visited, -1, res);
+		}
+		System.out.println(res);
+	}
+
+	static void DFSArticulationPointsUtil(ArrayList<ArrayList<Integer>> adj, int[] inTime, int[] lowTime, int timer,
+			int s, boolean[] visited, int parent, HashSet<Integer> h) {
+		int children = 0;
+		visited[s] = true;
+		inTime[s] = lowTime[s] = timer;
+		timer++;
+		for (Integer ad : adj.get(s)) {
+			if (ad == parent) {
+				continue;
+			} else if (visited[ad]) {
+				////// BackEdge Case
+				lowTime[s] = Math.min(lowTime[s], inTime[ad]);
+			} else {
+				DFSArticulationPointsUtil(adj, inTime, lowTime, timer, ad, visited, s, h);
+				lowTime[s] = Math.min(lowTime[s], lowTime[ad]);
+				if (lowTime[ad] > inTime[s])
+					h.add(s);
+				children++;
+			}
+		}
+		if (parent == -1 && children > 1)
+			h.add(s);
+	}
+
+	static void tarjansAlgorithm(ArrayList<ArrayList<Integer>> adj) {
+
+	}
+
+}
+
+class Edge {
+	int start;
+	int end;
+	int weight;
+
+	Edge(int s, int e, int w) {
+		this.start = s;
+		this.end = e;
+		this.weight = w;
+	}
 }
 
 class AdjListNode {
